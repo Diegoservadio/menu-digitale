@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Menu Digitale</title>
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; min-height: 100vh; }
+  nav { background: #fff; border-bottom: 1px solid #e5e5e0; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  nav h1 { font-size: 16px; font-weight: 600; }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: none; color: #666; }
+  .nav-tab.active { background: #1a1a1a; color: #fff; }
+  .page { display: none; padding: 2rem; max-width: 1100px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* EDITOR */
+  .editor-layout { display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem; }
+  .panel { background: #fff; border-radius: 12px; border: 1px solid #e5e5e0; padding: 1.25rem; }
+  .panel-title { font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+  input[type=text], textarea { width: 100%; padding: 8px 10px; font-size: 13px; border: 1px solid #e5e5e0; border-radius: 8px; background: #fff; color: #1a1a1a; font-family: inherit; margin-bottom: 8px; }
+  input[type=text]:focus, textarea:focus { outline: none; border-color: #999; }
+  .cat-block { border: 1px solid #e5e5e0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+  .cat-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #f9f9f7; }
+  .cat-head input { margin: 0; flex: 1; border: none; background: transparent; font-weight: 600; font-size: 13px; }
+  .cat-head input:focus { outline: none; }
+  .dish-row { display: flex; gap: 6px; align-items: flex-start; padding: 8px 10px; border-top: 1px solid #f0f0ec; }
+  .dish-col { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .dish-col input { margin: 0; }
+  .price-in { width: 72px !important; min-width: 72px; }
+  .add-dish { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #999; cursor: pointer; padding: 7px 10px; border: none; background: none; border-top: 1px solid #f0f0ec; width: 100%; font-family: inherit; }
+  .add-dish:hover { color: #1a1a1a; background: #f9f9f7; }
+  .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid #e5e5e0; background: #fff; color: #1a1a1a; font-family: inherit; }
+  .btn:hover { background: #f5f5f0; }
+  .btn-dark { background: #1a1a1a; color: #fff; border-color: transparent; }
+  .btn-dark:hover { opacity: 0.85; background: #1a1a1a; }
+  .btn-sm { padding: 4px 9px; font-size: 12px; }
+  .btn-red { color: #c0392b; border-color: #f5c6c3; }
+  .btn-red:hover { background: #fef2f2; }
+  .btn-green { background: #1a7a52; color: #fff; border-color: transparent; }
+  .btn-green:hover { opacity: 0.88; background: #1a7a52; }
+  .actions { display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 1rem; border-top: 1px solid #e5e5e0; }
+
+  /* MENU PREVIEW */
+  .menu-card { background: #fff; border-radius: 12px; border: 1px solid #e5e5e0; padding: 2rem; max-width: 460px; }
+  .menu-head { text-align: center; padding-bottom: 1.25rem; margin-bottom: 1.25rem; border-bottom: 1px solid #e5e5e0; }
+  .menu-name { font-size: 24px; font-weight: 600; }
+  .menu-sub { font-size: 12px; color: #888; margin-top: 3px; }
+  .menu-cat-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #888; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #f0f0ec; }
+  .menu-cat { margin-bottom: 1.25rem; }
+  .menu-dish { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f9f9f7; }
+  .menu-dish:last-child { border: none; }
+  .menu-dish-name { font-size: 13px; font-weight: 500; }
+  .menu-dish-desc { font-size: 11px; color: #888; margin-top: 2px; }
+  .menu-dish-price { font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .menu-footer { text-align: center; font-size: 10px; color: #bbb; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f0f0ec; }
+
+  /* QR PAGE */
+  .qr-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  #qr-canvas { display: flex; justify-content: center; }
+  #qr-canvas img, #qr-canvas canvas { border-radius: 8px; }
+
+  /* PAGAMENTO */
+  .pay-layout { max-width: 560px; }
+  .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+  .plan { border: 1px solid #e5e5e0; border-radius: 10px; padding: 1rem; cursor: pointer; }
+  .plan.selected { border: 2px solid #1a1a1a; }
+  .plan-price { font-size: 22px; font-weight: 600; }
+  .plan-price span { font-size: 13px; font-weight: 400; color: #888; }
+  .plan-desc { font-size: 12px; color: #888; margin-top: 3px; }
+  .features { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.5rem; }
+  .feature { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .check { color: #1a7a52; font-size: 15px; }
+  #stripe-form { margin-top: 1rem; }
+  #payment-element { margin-bottom: 1rem; }
+  #pay-error { color: #c0392b; font-size: 13px; margin-top: 8px; display: none; }
+  #pay-success { background: #f0faf5; border: 1px solid #a8e6c8; border-radius: 8px; padding: 1rem; text-align: center; color: #1a7a52; font-size: 14px; display: none; }
+  .divider { height: 1px; background: #e5e5e0; margin: 1rem 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <h1>Menu Digitale</h1>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('editor', this)">editor</button>
+    <button class="nav-tab" onclick="showPage('qr', this)">QR code</button>
+    <button class="nav-tab" onclick="showPage('pay', this); initStripe()">abbonamento</button>
+  </div>
+</nav>
+
+<!-- EDITOR -->
+<div id="page-editor" class="page active">
+  <div class="editor-layout">
+    <div class="panel" style="display:flex;flex-direction:column;">
+      <div class="panel-title">impostazioni</div>
+      <label style="font-size:12px;color:#888;margin-bottom:3px;">Nome ristorante</label>
+      <input type="text" id="rest-name" value="Trattoria da Mario" oninput="renderMenu()"/>
+      <label style="font-size:12px;color:#888;margin-bottom:3px;">Sottotitolo</label>
+      <input type="text" id="rest-tagline" value="Cucina tradizionale dal 1985" oninput="renderMenu()"/>
+      <div class="panel-title" style="margin-top:1rem;">categorie e piatti</div>
+      <div id="cat-list"></div>
+      <button class="btn btn-sm" onclick="addCat()" style="margin-top:8px;">+ aggiungi categoria</button>
+      <div class="actions">
+        <button class="btn btn-dark" onclick="exportPDF()">scarica PDF</button>
+        <button class="btn btn-green" onclick="showPage('pay', document.querySelector('.nav-tab:nth-child(3)')); initStripe()">attiva abbonamento</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">anteprima</div>
+      <div class="menu-card" id="menu-out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- QR -->
+<div id="page-qr" class="page">
+  <div class="qr-layout">
+    <div class="panel">
+      <div class="panel-title">link pubblico</div>
+      <div style="display:flex;gap:8px;margin-bottom:1rem;">
+        <input type="text" id="qr-url" value="menudigitale.vercel.app" style="margin:0;flex:1;color:#888;"/>
+        <button class="btn btn-sm" onclick="copyLink()">copia</button>
+      </div>
+      <div id="qr-canvas" style="margin-bottom:1rem;"></div>
+      <button class="btn" onclick="downloadQR()" style="width:100%;">scarica QR PNG</button>
+    </div>
+    <div class="panel">
+      <div class="panel-title">come usarlo</div>
+      <p style="font-size:13px;color:#555;line-height:1.7;">
+        Stampa il QR code e posizionalo su ogni tavolo. I clienti lo scansionano con la fotocamera del telefono e vedono il tuo menu aggiornato in tempo reale, senza scaricare nessuna app.
+      </p>
+      <div style="margin-top:1rem;padding:1rem;background:#f9f9f7;border-radius:8px;font-size:12px;color:#888;">
+        Ogni volta che modifichi il menu nell'editor, il link si aggiorna automaticamente. Non devi ristampare nulla.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGAMENTO -->
+<div id="page-pay" class="page">
+  <div class="pay-layout">
+    <div class="panel">
+      <div class="panel-title">scegli il piano</div>
+      <div class="plans">
+        <div class="plan selected" id="plan-m" onclick="selectPlan('monthly')">
+          <div class="plan-price">€19<span>/mese</span></div>
+          <div class="plan-desc">mensile · cancella quando vuoi</div>
+        </div>
+        <div class="plan" id="plan-y" onclick="selectPlan('yearly')">
+          <div class="plan-price">€149<span>/anno</span></div>
+          <div class="plan-desc">risparmia €79 · 2 mesi gratis</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="features">
+        <div class="feature"><span class="check">✓</span> menu digitale illimitato</div>
+        <div class="feature"><span class="check">✓</span> QR code personalizzato</div>
+        <div class="feature"><span class="check">✓</span> export PDF stampabile</div>
+        <div class="feature"><span class="check">✓</span> aggiornamenti in tempo reale</div>
+        <div class="feature"><span class="check">✓</span> assistenza via email</div>
+      </div>
+      <div class="divider"></div>
+      <div id="stripe-form" style="display:none;">
+        <div id="payment-element"></div>
+        <button class="btn btn-dark" id="pay-btn" onclick="submitPayment()" style="width:100%;">paga ora</button>
+        <div id="pay-error"></div>
+      </div>
+      <div id="stripe-loading" style="font-size:13px;color:#888;padding:1rem 0;">caricamento form pagamento...</div>
+      <div id="pay-success">Pagamento completato! Benvenuto nel piano premium.</div>
+      <p style="font-size:11px;color:#bbb;text-align:center;margin-top:1rem;">Pagamento sicuro via Stripe · Fattura automatica</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+// ─── STRIPE CONFIG ───────────────────────────────────────────────
+const STRIPE_PUBLIC_KEY = 'pk_test_SOSTITUISCI_CON_LA_TUA_CHIAVE';
+// ─────────────────────────────────────────────────────────────────
+
+let data = {
+  categories: [
+    { id:1, name:'Antipasti', dishes:[
+      {id:1,name:'Bruschetta al pomodoro',desc:'Pane tostato, pomodoro, basilico',price:'6.00'},
+      {id:2,name:'Tagliere misto',desc:'Salumi e formaggi locali',price:'12.00'}
+    ]},
+    { id:2, name:'Primi', dishes:[
+      {id:3,name:'Spaghetti al ragù',desc:'Ragù di carne della tradizione',price:'11.00'},
+      {id:4,name:'Risotto ai funghi',desc:'Funghi porcini, parmigiano',price:'13.00'}
+    ]},
+    { id:3, name:'Secondi', dishes:[
+      {id:5,name:'Cotoletta alla milanese',desc:'Vitello impanato, limone',price:'16.00'}
+    ]}
+  ]
+};
+let nextId = 20;
+let currentPlan = 'monthly';
+let stripe, elements, qrGenerated = false, stripeInit = false;
+
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(id === 'qr' && !qrGenerated) generateQR();
+}
+
+// ─── EDITOR ──────────────────────────────────────────────────────
+function renderSidebar() {
+  document.getElementById('cat-list').innerHTML = data.categories.map((cat,ci) => `
+    <div class="cat-block">
+      <div class="cat-head">
+        <input value="${cat.name}" oninput="data.categories[${ci}].name=this.value;renderMenu()"/>
+        <button class="btn btn-sm btn-red" onclick="removeCat(${ci})">×</button>
+      </div>
+      ${cat.dishes.map((d,di) => `
+        <div class="dish-row">
+          <div class="dish-col">
+            <input value="${d.name}" placeholder="Nome piatto" oninput="data.categories[${ci}].dishes[${di}].name=this.value;renderMenu()" style="font-size:12px;"/>
+            <input value="${d.desc}" placeholder="Descrizione" oninput="data.categories[${ci}].dishes[${di}].desc=this.value;renderMenu()" style="font-size:11px;"/>
+          </div>
+          <input class="price-in" value="${d.price}" placeholder="€" oninput="data.categories[${ci}].dishes[${di}].price=this.value;renderMenu()" style="font-size:12px;"/>
+          <button class="btn btn-sm btn-red" onclick="removeDish(${ci},${di})">×</button>
+        </div>
+      `).join('')}
+      <button class="add-dish" onclick="addDish(${ci})">+ piatto</button>
+    </div>
+  `).join('');
+}
+
+function renderMenu() {
+  const name = document.getElementById('rest-name').value;
+  const tag  = document.getElementById('rest-tagline').value;
+  document.getElementById('menu-out').innerHTML = `
+    <div class="menu-head">
+      <div class="menu-name">${name}</div>
+      <div class="menu-sub">${tag}</div>
+    </div>
+    ${data.categories.map(cat=>`
+      <div class="menu-cat">
+        <div class="menu-cat-title">${cat.name}</div>
+        ${cat.dishes.map(d=>`
+          <div class="menu-dish">
+            <div><div class="menu-dish-name">${d.name}</div>${d.desc?`<div class="menu-dish-desc">${d.desc}</div>`:''}</div>
+            <div class="menu-dish-price">€ ${d.price}</div>
+          </div>
+        `).join('')}
+      </div>
+    `).join('')}
+    <div class="menu-footer">aggiornato oggi</div>
+  `;
+}
+
+function addCat() { data.categories.push({id:nextId++,name:'Nuova categoria',dishes:[]}); renderSidebar(); renderMenu(); }
+function removeCat(ci) { data.categories.splice(ci,1); renderSidebar(); renderMenu(); }
+function addDish(ci) { data.categories[ci].dishes.push({id:nextId++,name:'',desc:'',price:''}); renderSidebar(); renderMenu(); }
+function removeDish(ci,di) { data.categories[ci].dishes.splice(di,1); renderSidebar(); renderMenu(); }
+
+function exportPDF() {
+  const name = document.getElementById('rest-name').value;
+  const el = document.getElementById('menu-out');
+  html2pdf().set({
+    margin:1, filename:'menu-'+name.replace(/\s+/g,'-').toLowerCase()+'.pdf',
+    image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2},
+    jsPDF:{unit:'cm',format:'a4',orientation:'portrait'}
+  }).from(el).save();
+}
+
+// ─── QR ──────────────────────────────────────────────────────────
+function generateQR() {
+  const url = document.getElementById('qr-url').value;
+  document.getElementById('qr-canvas').innerHTML = '';
+  new QRCode(document.getElementById('qr-canvas'), { text:url, width:180, height:180, correctLevel:QRCode.CorrectLevel.H });
+  qrGenerated = true;
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(document.getElementById('qr-url').value)
+    .then(()=>alert('Link copiato!')).catch(()=>alert('Copia manualmente il link'));
+}
+
+function downloadQR() {
+  const canvas = document.querySelector('#qr-canvas canvas');
+  if(!canvas){alert('QR non ancora generato');return;}
+  const a = document.createElement('a'); a.download='qr-menu.png'; a.href=canvas.toDataURL('image/png'); a.click();
+}
+
+// ─── STRIPE ──────────────────────────────────────────────────────
+async function initStripe() {
+  if(stripeInit) return;
+  stripeInit = true;
+  try {
+    stripe = Stripe(STRIPE_PUBLIC_KEY);
+    const res = await fetch('/api/payment', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ plan: currentPlan })
+    });
+    const { clientSecret, error } = await res.json();
+    if(error) throw new Error(error);
+    elements = stripe.elements({ clientSecret });
+    const payEl = elements.create('payment');
+    payEl.mount('#payment-element');
+    document.getElementById('stripe-loading').style.display = 'none';
+    document.getElementById('stripe-form').style.display = 'block';
+  } catch(e) {
+    document.getElementById('stripe-loading').textContent = 'Errore: '+e.message;
+  }
+}
+
+function selectPlan(plan) {
+  currentPlan = plan;
+  document.getElementById('plan-m').classList.toggle('selected', plan==='monthly');
+  document.getElementById('plan-y').classList.toggle('selected', plan==='yearly');
+  stripeInit = false;
+  document.getElementById('stripe-form').style.display = 'none';
+  document.getElementById('stripe-loading').style.display = 'block';
+  document.getElementById('stripe-loading').textContent = 'caricamento form pagamento...';
+  initStripe();
+}
+
+async function submitPayment() {
+  const btn = document.getElementById('pay-btn');
+  btn.textContent = 'elaborazione...'; btn.disabled = true;
+  const errEl = document.getElementById('pay-error');
+  errEl.style.display = 'none';
+  const { error } = await stripe.confirmPayment({
+    elements, confirmParams: { return_url: window.location.href }
+  });
+  if(error) {
+    errEl.textContent = error.message; errEl.style.display = 'block';
+    btn.textContent = 'paga ora'; btn.disabled = false;
+  } else {
+    document.getElementById('stripe-form').style.display = 'none';
+    document.getElementById('pay-success').style.display = 'block';
+  }
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────
+renderSidebar();
+renderMenu();
+</script>
+</body>
+</html>
