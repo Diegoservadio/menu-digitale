@@ -3,197 +3,505 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Menu Digitale</title>
+<title>Tavola — Menu Digitale</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <script src="https://js.stripe.com/v3/"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; min-height: 100vh; }
-  nav { background: #fff; border-bottom: 1px solid #e5e5e0; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
-  nav h1 { font-size: 16px; font-weight: 600; }
-  .nav-tabs { display: flex; gap: 4px; }
-  .nav-tab { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: none; color: #666; }
-  .nav-tab.active { background: #1a1a1a; color: #fff; }
-  .page { display: none; padding: 2rem; max-width: 1100px; margin: 0 auto; }
-  .page.active { display: block; }
+:root {
+  --ink: #0e0e0e;
+  --ink2: #2a2a2a;
+  --ink3: #555;
+  --ink4: #999;
+  --gold: #c9a84c;
+  --gold2: #e8c97a;
+  --cream: #faf8f3;
+  --cream2: #f2efe6;
+  --white: #ffffff;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --red: #c0392b;
+  --green: #1a6644;
+  --radius: 12px;
+  --radius-lg: 20px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
 
-  /* EDITOR */
-  .editor-layout { display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem; }
-  .panel { background: #fff; border-radius: 12px; border: 1px solid #e5e5e0; padding: 1.25rem; }
-  .panel-title { font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
-  input[type=text], textarea { width: 100%; padding: 8px 10px; font-size: 13px; border: 1px solid #e5e5e0; border-radius: 8px; background: #fff; color: #1a1a1a; font-family: inherit; margin-bottom: 8px; }
-  input[type=text]:focus, textarea:focus { outline: none; border-color: #999; }
-  .cat-block { border: 1px solid #e5e5e0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
-  .cat-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #f9f9f7; }
-  .cat-head input { margin: 0; flex: 1; border: none; background: transparent; font-weight: 600; font-size: 13px; }
-  .cat-head input:focus { outline: none; }
-  .dish-row { display: flex; gap: 6px; align-items: flex-start; padding: 8px 10px; border-top: 1px solid #f0f0ec; }
-  .dish-col { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-  .dish-col input { margin: 0; }
-  .price-in { width: 72px !important; min-width: 72px; }
-  .add-dish { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #999; cursor: pointer; padding: 7px 10px; border: none; background: none; border-top: 1px solid #f0f0ec; width: 100%; font-family: inherit; }
-  .add-dish:hover { color: #1a1a1a; background: #f9f9f7; }
-  .btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid #e5e5e0; background: #fff; color: #1a1a1a; font-family: inherit; }
-  .btn:hover { background: #f5f5f0; }
-  .btn-dark { background: #1a1a1a; color: #fff; border-color: transparent; }
-  .btn-dark:hover { opacity: 0.85; background: #1a1a1a; }
-  .btn-sm { padding: 4px 9px; font-size: 12px; }
-  .btn-red { color: #c0392b; border-color: #f5c6c3; }
-  .btn-red:hover { background: #fef2f2; }
-  .btn-green { background: #1a7a52; color: #fff; border-color: transparent; }
-  .btn-green:hover { opacity: 0.88; background: #1a7a52; }
-  .actions { display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 1rem; border-top: 1px solid #e5e5e0; }
+/* ── LANDING ─────────────────────────────────────────────────── */
+#landing { min-height: 100vh; display: flex; flex-direction: column; }
+.land-nav { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 3rem; border-bottom: 1px solid var(--border); background: var(--white); }
+.land-logo { font-family: 'Playfair Display', serif; font-size: 22px; letter-spacing: 0.04em; color: var(--ink); }
+.land-logo span { color: var(--gold); }
+.land-nav-actions { display: flex; gap: 12px; align-items: center; }
+.hero { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.hero-left { padding: 5rem 4rem; display: flex; flex-direction: column; justify-content: center; background: var(--white); }
+.hero-tag { font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; }
+.hero-title { font-family: 'Playfair Display', serif; font-size: 52px; line-height: 1.12; color: var(--ink); margin-bottom: 1.5rem; }
+.hero-title em { color: var(--gold); font-style: italic; }
+.hero-sub { font-size: 17px; font-weight: 300; color: var(--ink3); line-height: 1.7; margin-bottom: 2.5rem; max-width: 440px; }
+.hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-right { background: var(--ink); display: flex; align-items: center; justify-content: center; padding: 3rem; position: relative; overflow: hidden; }
+.hero-right::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(201,168,76,0.03) 40px, rgba(201,168,76,0.03) 41px); }
+.hero-mockup { background: var(--white); border-radius: var(--radius-lg); padding: 2rem; width: 320px; box-shadow: 0 40px 80px rgba(0,0,0,0.4); position: relative; z-index: 1; animation: float 4s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.mockup-head { text-align: center; padding-bottom: 1.25rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+.mockup-name { font-family: 'Playfair Display', serif; font-size: 20px; }
+.mockup-sub { font-size: 11px; color: var(--ink4); margin-top: 3px; }
+.mockup-cat { margin-bottom: 1rem; }
+.mockup-cat-title { font-size: 9px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+.mockup-dish { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.mockup-dish:last-child { border: none; }
+.mockup-dish-price { font-weight: 500; color: var(--gold); }
+.features-strip { display: grid; grid-template-columns: repeat(3,1fr); border-top: 1px solid var(--border); }
+.feature-item { padding: 2rem; text-align: center; border-right: 1px solid var(--border); background: var(--white); }
+.feature-item:last-child { border-right: none; }
+.feature-icon { font-size: 28px; margin-bottom: 0.75rem; }
+.feature-title { font-family: 'Playfair Display', serif; font-size: 16px; margin-bottom: 0.5rem; }
+.feature-desc { font-size: 13px; color: var(--ink3); font-weight: 300; line-height: 1.6; }
+.pricing-strip { background: var(--ink); color: var(--white); padding: 4rem 3rem; text-align: center; }
+.pricing-strip h2 { font-family: 'Playfair Display', serif; font-size: 36px; margin-bottom: 0.5rem; }
+.pricing-strip p { color: rgba(255,255,255,0.6); font-weight: 300; margin-bottom: 2.5rem; }
+.pricing-cards { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+.pricing-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius-lg); padding: 2rem; width: 260px; text-align: left; }
+.pricing-card.featured { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+.pricing-card-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; margin-bottom: 1rem; }
+.pricing-card-price { font-family: 'Playfair Display', serif; font-size: 40px; margin-bottom: 0.25rem; }
+.pricing-card-price span { font-size: 16px; font-family: 'DM Sans', sans-serif; opacity: 0.7; }
+.pricing-card-desc { font-size: 12px; opacity: 0.7; margin-bottom: 1.5rem; }
+.pricing-features { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.5rem; }
+.pricing-features li { font-size: 13px; display: flex; gap: 8px; align-items: center; }
+.pricing-features li::before { content: '✓'; font-weight: 500; }
 
-  /* MENU PREVIEW */
-  .menu-card { background: #fff; border-radius: 12px; border: 1px solid #e5e5e0; padding: 2rem; max-width: 460px; }
-  .menu-head { text-align: center; padding-bottom: 1.25rem; margin-bottom: 1.25rem; border-bottom: 1px solid #e5e5e0; }
-  .menu-name { font-size: 24px; font-weight: 600; }
-  .menu-sub { font-size: 12px; color: #888; margin-top: 3px; }
-  .menu-cat-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #888; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #f0f0ec; }
-  .menu-cat { margin-bottom: 1.25rem; }
-  .menu-dish { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f9f9f7; }
-  .menu-dish:last-child { border: none; }
-  .menu-dish-name { font-size: 13px; font-weight: 500; }
-  .menu-dish-desc { font-size: 11px; color: #888; margin-top: 2px; }
-  .menu-dish-price { font-size: 13px; font-weight: 600; white-space: nowrap; }
-  .menu-footer { text-align: center; font-size: 10px; color: #bbb; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f0f0ec; }
+/* ── APP ─────────────────────────────────────────────────────── */
+#app { display: none; flex-direction: column; min-height: 100vh; }
+.app-nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+.app-logo { font-family: 'Playfair Display', serif; font-size: 20px; }
+.app-logo span { color: var(--gold); }
+.app-tabs { display: flex; gap: 2px; }
+.app-tab { padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: none; color: var(--ink3); font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.app-tab.active { background: var(--ink); color: var(--white); }
+.app-tab:hover:not(.active) { background: var(--cream2); color: var(--ink); }
+.app-body { flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
 
-  /* QR PAGE */
-  .qr-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-  #qr-canvas { display: flex; justify-content: center; }
-  #qr-canvas img, #qr-canvas canvas { border-radius: 8px; }
+/* ── DASHBOARD ───────────────────────────────────────────────── */
+.dash-greeting { margin-bottom: 2rem; }
+.dash-greeting h2 { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 4px; }
+.dash-greeting p { font-size: 14px; color: var(--ink3); font-weight: 300; }
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 2rem; }
+.stat-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 1.25rem; }
+.stat-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink4); margin-bottom: 8px; }
+.stat-value { font-family: 'Playfair Display', serif; font-size: 32px; color: var(--ink); margin-bottom: 4px; }
+.stat-trend { font-size: 12px; color: var(--green); }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.dash-card { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 1.5rem; }
+.dash-card-title { font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 1.25rem; }
+.activity-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.activity-item:last-child { border: none; }
+.activity-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+.activity-time { color: var(--ink4); margin-left: auto; font-size: 12px; }
+.bar-chart { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.bar-label { width: 60px; color: var(--ink3); text-align: right; flex-shrink: 0; }
+.bar-track { flex: 1; height: 8px; background: var(--cream2); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--gold); border-radius: 4px; transition: width 1s ease; }
+.bar-val { width: 30px; color: var(--ink3); flex-shrink: 0; }
 
-  /* PAGAMENTO */
-  .pay-layout { max-width: 560px; }
-  .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
-  .plan { border: 1px solid #e5e5e0; border-radius: 10px; padding: 1rem; cursor: pointer; }
-  .plan.selected { border: 2px solid #1a1a1a; }
-  .plan-price { font-size: 22px; font-weight: 600; }
-  .plan-price span { font-size: 13px; font-weight: 400; color: #888; }
-  .plan-desc { font-size: 12px; color: #888; margin-top: 3px; }
-  .features { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.5rem; }
-  .feature { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-  .check { color: #1a7a52; font-size: 15px; }
-  #stripe-form { margin-top: 1rem; }
-  #payment-element { margin-bottom: 1rem; }
-  #pay-error { color: #c0392b; font-size: 13px; margin-top: 8px; display: none; }
-  #pay-success { background: #f0faf5; border: 1px solid #a8e6c8; border-radius: 8px; padding: 1rem; text-align: center; color: #1a7a52; font-size: 14px; display: none; }
-  .divider { height: 1px; background: #e5e5e0; margin: 1rem 0; }
+/* ── EDITOR ──────────────────────────────────────────────────── */
+.editor-layout { display: grid; grid-template-columns: 380px 1fr; gap: 1.5rem; align-items: start; }
+.editor-panel { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 1.5rem; }
+.panel-section { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+.panel-section:last-child { border: none; margin-bottom: 0; padding-bottom: 0; }
+.section-title { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+label { display: block; font-size: 12px; color: var(--ink3); margin-bottom: 4px; }
+input[type=text], input[type=email], input[type=time], textarea, select {
+  width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border2);
+  border-radius: 8px; background: var(--cream); color: var(--ink); font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.15s; margin-bottom: 10px;
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--gold); background: var(--white); }
+textarea { resize: vertical; min-height: 70px; }
+.hours-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cat-block { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+.cat-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--cream); }
+.cat-head input { flex: 1; border: none; background: transparent; font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; color: var(--ink); margin: 0; }
+.cat-head input:focus { outline: none; }
+.dish-row { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-top: 1px solid var(--border); }
+.dish-col { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.dish-col input, .dish-col textarea { margin: 0; }
+.price-in { width: 72px !important; min-width: 72px; margin: 0 !important; }
+.add-dish-btn { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink4); cursor: pointer; padding: 8px 12px; border: none; background: none; border-top: 1px solid var(--border); width: 100%; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.add-dish-btn:hover { color: var(--gold); background: var(--cream); }
+.allergen-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.allergen-chip { padding: 3px 8px; border-radius: 20px; font-size: 11px; cursor: pointer; border: 1px solid var(--border2); background: var(--cream); color: var(--ink3); transition: all 0.15s; }
+.allergen-chip.selected { background: var(--gold); border-color: var(--gold); color: var(--white); }
+
+/* MENU PREVIEW */
+.preview-wrap { position: sticky; top: 80px; }
+.preview-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.preview-title { font-size: 13px; color: var(--ink3); font-weight: 500; }
+.menu-preview { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; }
+.menu-hero { background: var(--ink); color: var(--white); padding: 2.5rem 2rem; text-align: center; position: relative; overflow: hidden; }
+.menu-hero::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 30px, rgba(201,168,76,0.05) 30px, rgba(201,168,76,0.05) 31px); }
+.menu-hero-name { font-family: 'Playfair Display', serif; font-size: 28px; position: relative; z-index: 1; }
+.menu-hero-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; position: relative; z-index: 1; font-weight: 300; }
+.menu-hero-line { width: 40px; height: 1px; background: var(--gold); margin: 12px auto; position: relative; z-index: 1; }
+.menu-body { padding: 1.5rem; }
+.menu-cat { margin-bottom: 1.5rem; }
+.menu-cat-title { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.menu-dish { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.menu-dish:last-child { border: none; }
+.menu-dish-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.menu-dish-desc { font-size: 11px; color: var(--ink3); font-weight: 300; }
+.menu-dish-allergens { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+.menu-dish-allergen { font-size: 9px; padding: 1px 6px; background: var(--cream2); border-radius: 10px; color: var(--ink3); }
+.menu-dish-price { font-size: 14px; font-weight: 500; color: var(--gold); white-space: nowrap; font-family: 'Playfair Display', serif; }
+.menu-info { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 11px; color: var(--ink4); background: var(--cream); }
+
+/* ── QR ──────────────────────────────────────────────────────── */
+.qr-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.qr-card { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 2rem; }
+.qr-frame { background: var(--ink); border-radius: var(--radius-lg); padding: 2rem; text-align: center; margin-bottom: 1.5rem; }
+.qr-frame-inner { background: var(--white); border-radius: 8px; padding: 1rem; display: inline-block; }
+#qr-canvas { display: flex; justify-content: center; align-items: center; }
+.qr-restaurant-name { font-family: 'Playfair Display', serif; font-size: 14px; color: var(--white); margin-top: 1rem; }
+.qr-instructions { display: flex; flex-direction: column; gap: 1rem; }
+.qr-step { display: flex; gap: 12px; align-items: flex-start; }
+.qr-step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--gold); color: var(--white); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+.qr-step-text { font-size: 13px; color: var(--ink3); line-height: 1.6; font-weight: 300; }
+
+/* ── PIANI ───────────────────────────────────────────────────── */
+.pay-layout { max-width: 680px; }
+.plan-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+.plan-card { border: 1.5px solid var(--border2); border-radius: var(--radius-lg); padding: 1.5rem; cursor: pointer; transition: all 0.2s; background: var(--white); }
+.plan-card:hover { border-color: var(--gold); }
+.plan-card.selected { border-color: var(--gold); background: #fffdf5; }
+.plan-card-name { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink4); margin-bottom: 8px; }
+.plan-card-price { font-family: 'Playfair Display', serif; font-size: 36px; color: var(--ink); margin-bottom: 4px; }
+.plan-card-price span { font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink4); }
+.plan-card-save { font-size: 12px; color: var(--green); font-weight: 500; }
+.pay-features { display: flex; flex-direction: column; gap: 8px; margin-bottom: 2rem; padding: 1.5rem; background: var(--cream); border-radius: var(--radius); }
+.pay-feature { display: flex; gap: 10px; align-items: center; font-size: 13px; }
+.pay-feature-check { color: var(--gold); font-size: 14px; }
+#stripe-form { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 1.5rem; }
+#payment-element { margin-bottom: 1rem; }
+#pay-error { color: var(--red); font-size: 13px; margin-top: 8px; display: none; padding: 10px; background: #fef2f2; border-radius: 8px; }
+#pay-success { background: #f0faf5; border: 1px solid #a8e6c8; border-radius: var(--radius); padding: 1.5rem; text-align: center; color: var(--green); display: none; }
+#pay-success h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 6px; }
+#stripe-loading { font-size: 13px; color: var(--ink4); padding: 1.5rem; text-align: center; background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--border); }
+
+/* ── BUTTONS ─────────────────────────────────────────────────── */
+.btn { padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border2); background: var(--white); color: var(--ink); font-family: 'DM Sans', sans-serif; transition: all 0.15s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { background: var(--cream2); }
+.btn-gold { background: var(--gold); color: var(--white); border-color: var(--gold); }
+.btn-gold:hover { background: #b8953e; border-color: #b8953e; }
+.btn-dark { background: var(--ink); color: var(--white); border-color: var(--ink); }
+.btn-dark:hover { opacity: 0.85; background: var(--ink); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-red { color: var(--red); border-color: #f5c6c3; }
+.btn-red:hover { background: #fef2f2; }
+.btn-lg { padding: 14px 28px; font-size: 15px; border-radius: 10px; }
+.btn-full { width: 100%; justify-content: center; }
+.divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+.img-upload { border: 1.5px dashed var(--border2); border-radius: 8px; padding: 1rem; text-align: center; cursor: pointer; font-size: 12px; color: var(--ink4); transition: all 0.15s; margin-bottom: 8px; }
+.img-upload:hover { border-color: var(--gold); color: var(--gold); }
 </style>
 </head>
 <body>
 
-<nav>
-  <h1>Menu Digitale</h1>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('editor', this)">editor</button>
-    <button class="nav-tab" onclick="showPage('qr', this)">QR code</button>
-    <button class="nav-tab" onclick="showPage('pay', this); initStripe()">abbonamento</button>
-  </div>
-</nav>
+<!-- ══ LANDING ══════════════════════════════════════════════════ -->
+<div id="landing">
+  <nav class="land-nav">
+    <div class="land-logo">tavola<span>.</span></div>
+    <div class="land-nav-actions">
+      <button class="btn btn-sm" onclick="enterApp()">accedi</button>
+      <button class="btn btn-gold btn-sm" onclick="enterApp()">inizia gratis</button>
+    </div>
+  </nav>
 
-<!-- EDITOR -->
-<div id="page-editor" class="page active">
-  <div class="editor-layout">
-    <div class="panel" style="display:flex;flex-direction:column;">
-      <div class="panel-title">impostazioni</div>
-      <label style="font-size:12px;color:#888;margin-bottom:3px;">Nome ristorante</label>
-      <input type="text" id="rest-name" value="Trattoria da Mario" oninput="renderMenu()"/>
-      <label style="font-size:12px;color:#888;margin-bottom:3px;">Sottotitolo</label>
-      <input type="text" id="rest-tagline" value="Cucina tradizionale dal 1985" oninput="renderMenu()"/>
-      <div class="panel-title" style="margin-top:1rem;">categorie e piatti</div>
-      <div id="cat-list"></div>
-      <button class="btn btn-sm" onclick="addCat()" style="margin-top:8px;">+ aggiungi categoria</button>
-      <div class="actions">
-        <button class="btn btn-dark" onclick="exportPDF()">scarica PDF</button>
-        <button class="btn btn-green" onclick="showPage('pay', document.querySelector('.nav-tab:nth-child(3)')); initStripe()">attiva abbonamento</button>
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-tag">menu digitale per ristoranti italiani</div>
+      <h1 class="hero-title">Il tuo menu,<br/><em>sempre perfetto.</em></h1>
+      <p class="hero-sub">Crea il menu digitale del tuo ristorante in pochi minuti. QR code, aggiornamenti in tempo reale, export PDF. Da €19 al mese.</p>
+      <div class="hero-cta">
+        <button class="btn btn-dark btn-lg" onclick="enterApp()">prova gratis 30 giorni</button>
+        <button class="btn btn-lg" onclick="enterApp()">guarda demo</button>
       </div>
     </div>
-    <div class="panel">
-      <div class="panel-title">anteprima</div>
-      <div class="menu-card" id="menu-out"></div>
+    <div class="hero-right">
+      <div class="hero-mockup">
+        <div class="mockup-head">
+          <div class="mockup-name">Osteria del Porto</div>
+          <div class="mockup-sub">Cucina di mare dal 1962</div>
+        </div>
+        <div class="mockup-cat">
+          <div class="mockup-cat-title">antipasti</div>
+          <div class="mockup-dish"><span>Carpaccio di branzino</span><span class="mockup-dish-price">€14</span></div>
+          <div class="mockup-dish"><span>Frittura di paranza</span><span class="mockup-dish-price">€12</span></div>
+        </div>
+        <div class="mockup-cat">
+          <div class="mockup-cat-title">primi</div>
+          <div class="mockup-dish"><span>Spaghetti alle vongole</span><span class="mockup-dish-price">€16</span></div>
+          <div class="mockup-dish"><span>Risotto al nero di seppia</span><span class="mockup-dish-price">€17</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="features-strip">
+    <div class="feature-item">
+      <div class="feature-icon">◈</div>
+      <div class="feature-title">QR code istantaneo</div>
+      <div class="feature-desc">I clienti scansionano e vedono il menu aggiornato. Nessuna app da scaricare.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">◎</div>
+      <div class="feature-title">Aggiornamenti in tempo reale</div>
+      <div class="feature-desc">Cambia un piatto o un prezzo in 10 secondi. Il menu si aggiorna ovunque.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">◇</div>
+      <div class="feature-title">Export PDF professionale</div>
+      <div class="feature-desc">Scarica il menu pronto da stampare con un clic. Layout elegante e curato.</div>
+    </div>
+  </div>
+
+  <div class="pricing-strip">
+    <h2>Semplice, trasparente.</h2>
+    <p>Nessun costo nascosto. Cancelli quando vuoi.</p>
+    <div class="pricing-cards">
+      <div class="pricing-card">
+        <div class="pricing-card-label">mensile</div>
+        <div class="pricing-card-price">€19<span>/mese</span></div>
+        <div class="pricing-card-desc">Perfetto per iniziare</div>
+        <ul class="pricing-features">
+          <li>Menu digitale illimitato</li>
+          <li>QR code personalizzato</li>
+          <li>Export PDF</li>
+          <li>Statistiche base</li>
+        </ul>
+        <button class="btn btn-full" style="background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.2);" onclick="enterApp()">inizia ora</button>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-card-label">annuale — più popolare</div>
+        <div class="pricing-card-price">€149<span>/anno</span></div>
+        <div class="pricing-card-desc">Risparmia €79 — 2 mesi gratis</div>
+        <ul class="pricing-features">
+          <li>Tutto del piano mensile</li>
+          <li>Statistiche avanzate</li>
+          <li>Foto dei piatti</li>
+          <li>Supporto prioritario</li>
+        </ul>
+        <button class="btn btn-dark btn-full" onclick="enterApp()">inizia ora</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- QR -->
-<div id="page-qr" class="page">
-  <div class="qr-layout">
-    <div class="panel">
-      <div class="panel-title">link pubblico</div>
-      <div style="display:flex;gap:8px;margin-bottom:1rem;">
-        <input type="text" id="qr-url" value="menudigitale.vercel.app" style="margin:0;flex:1;color:#888;"/>
-        <button class="btn btn-sm" onclick="copyLink()">copia</button>
-      </div>
-      <div id="qr-canvas" style="margin-bottom:1rem;"></div>
-      <button class="btn" onclick="downloadQR()" style="width:100%;">scarica QR PNG</button>
+<!-- ══ APP ══════════════════════════════════════════════════════ -->
+<div id="app">
+  <nav class="app-nav">
+    <div class="app-logo">tavola<span>.</span></div>
+    <div class="app-tabs">
+      <button class="app-tab active" onclick="showTab('dashboard',this)">dashboard</button>
+      <button class="app-tab" onclick="showTab('editor',this)">menu</button>
+      <button class="app-tab" onclick="showTab('qr',this);initQR()">QR code</button>
+      <button class="app-tab" onclick="showTab('pay',this);initStripe()">abbonamento</button>
     </div>
-    <div class="panel">
-      <div class="panel-title">come usarlo</div>
-      <p style="font-size:13px;color:#555;line-height:1.7;">
-        Stampa il QR code e posizionalo su ogni tavolo. I clienti lo scansionano con la fotocamera del telefono e vedono il tuo menu aggiornato in tempo reale, senza scaricare nessuna app.
-      </p>
-      <div style="margin-top:1rem;padding:1rem;background:#f9f9f7;border-radius:8px;font-size:12px;color:#888;">
-        Ogni volta che modifichi il menu nell'editor, il link si aggiorna automaticamente. Non devi ristampare nulla.
-      </div>
-    </div>
-  </div>
-</div>
+    <button class="btn btn-sm" onclick="showLanding()">← esci</button>
+  </nav>
 
-<!-- PAGAMENTO -->
-<div id="page-pay" class="page">
-  <div class="pay-layout">
-    <div class="panel">
-      <div class="panel-title">scegli il piano</div>
-      <div class="plans">
-        <div class="plan selected" id="plan-m" onclick="selectPlan('monthly')">
-          <div class="plan-price">€19<span>/mese</span></div>
-          <div class="plan-desc">mensile · cancella quando vuoi</div>
+  <div class="app-body">
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard">
+      <div class="dash-greeting">
+        <h2>Buongiorno, Mario 👋</h2>
+        <p>Ecco come sta andando il tuo menu oggi</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">visite oggi</div>
+          <div class="stat-value">247</div>
+          <div class="stat-trend">↑ +18% rispetto a ieri</div>
         </div>
-        <div class="plan" id="plan-y" onclick="selectPlan('yearly')">
-          <div class="plan-price">€149<span>/anno</span></div>
-          <div class="plan-desc">risparmia €79 · 2 mesi gratis</div>
+        <div class="stat-card">
+          <div class="stat-label">scansioni QR</div>
+          <div class="stat-value">89</div>
+          <div class="stat-trend">↑ +6 questa settimana</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">piatti nel menu</div>
+          <div class="stat-value" id="stat-dishes">0</div>
+          <div class="stat-trend">in 3 categorie</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">ultimo aggiornamento</div>
+          <div class="stat-value" style="font-size:18px;margin-top:6px;">oggi</div>
+          <div class="stat-trend">menu sempre aggiornato</div>
         </div>
       </div>
-      <div class="divider"></div>
-      <div class="features">
-        <div class="feature"><span class="check">✓</span> menu digitale illimitato</div>
-        <div class="feature"><span class="check">✓</span> QR code personalizzato</div>
-        <div class="feature"><span class="check">✓</span> export PDF stampabile</div>
-        <div class="feature"><span class="check">✓</span> aggiornamenti in tempo reale</div>
-        <div class="feature"><span class="check">✓</span> assistenza via email</div>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="dash-card-title">Attività recente</div>
+          <div class="activity-item"><div class="activity-dot"></div><span>Menu visualizzato da tavolo 4</span><span class="activity-time">2 min fa</span></div>
+          <div class="activity-item"><div class="activity-dot"></div><span>QR scansionato — dispositivo mobile</span><span class="activity-time">8 min fa</span></div>
+          <div class="activity-item"><div class="activity-dot"></div><span>Menu aggiornato — prezzo modificato</span><span class="activity-time">1h fa</span></div>
+          <div class="activity-item"><div class="activity-dot"></div><span>PDF scaricato</span><span class="activity-time">3h fa</span></div>
+          <div class="activity-item"><div class="activity-dot"></div><span>47 visite nelle ultime 24h</span><span class="activity-time">ieri</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-title">Visite per giorno</div>
+          <div class="bar-chart">
+            <div class="bar-row"><span class="bar-label">Lun</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span class="bar-val">142</span></div>
+            <div class="bar-row"><span class="bar-label">Mar</span><div class="bar-track"><div class="bar-fill" style="width:75%"></div></div><span class="bar-val">178</span></div>
+            <div class="bar-row"><span class="bar-label">Mer</span><div class="bar-track"><div class="bar-fill" style="width:45%"></div></div><span class="bar-val">107</span></div>
+            <div class="bar-row"><span class="bar-label">Gio</span><div class="bar-track"><div class="bar-fill" style="width:90%"></div></div><span class="bar-val">214</span></div>
+            <div class="bar-row"><span class="bar-label">Ven</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">247</span></div>
+            <div class="bar-row"><span class="bar-label">Sab</span><div class="bar-track"><div class="bar-fill" style="width:0%"></div></div><span class="bar-val">—</span></div>
+            <div class="bar-row"><span class="bar-label">Dom</span><div class="bar-track"><div class="bar-fill" style="width:0%"></div></div><span class="bar-val">—</span></div>
+          </div>
+        </div>
       </div>
-      <div class="divider"></div>
-      <div id="stripe-form" style="display:none;">
-        <div id="payment-element"></div>
-        <button class="btn btn-dark" id="pay-btn" onclick="submitPayment()" style="width:100%;">paga ora</button>
-        <div id="pay-error"></div>
-      </div>
-      <div id="stripe-loading" style="font-size:13px;color:#888;padding:1rem 0;">caricamento form pagamento...</div>
-      <div id="pay-success">Pagamento completato! Benvenuto nel piano premium.</div>
-      <p style="font-size:11px;color:#bbb;text-align:center;margin-top:1rem;">Pagamento sicuro via Stripe · Fattura automatica</p>
     </div>
+
+    <!-- EDITOR -->
+    <div id="tab-editor" style="display:none;">
+      <div class="editor-layout">
+        <div>
+          <div class="editor-panel">
+            <div class="panel-section">
+              <div class="section-title">informazioni ristorante</div>
+              <label>Nome ristorante</label>
+              <input type="text" id="rest-name" value="Trattoria da Mario" oninput="renderMenu()"/>
+              <label>Sottotitolo</label>
+              <input type="text" id="rest-tagline" value="Cucina tradizionale dal 1985" oninput="renderMenu()"/>
+              <label>Indirizzo</label>
+              <input type="text" id="rest-address" value="Via Roma 12, Milano" oninput="renderMenu()"/>
+            </div>
+            <div class="panel-section">
+              <div class="section-title">orari di apertura</div>
+              <div class="hours-grid">
+                <div><label>apertura</label><input type="time" id="h-open" value="12:00" oninput="renderMenu()"/></div>
+                <div><label>chiusura</label><input type="time" id="h-close" value="23:00" oninput="renderMenu()"/></div>
+              </div>
+            </div>
+            <div class="panel-section">
+              <div class="section-title">categorie e piatti</div>
+              <div id="cat-list"></div>
+              <button class="btn btn-sm" onclick="addCat()" style="margin-top:8px;width:100%;">+ aggiungi categoria</button>
+            </div>
+            <div class="panel-section" style="display:flex;flex-direction:column;gap:8px;">
+              <div class="section-title">azioni</div>
+              <button class="btn btn-dark btn-full" onclick="exportPDF()">↓ scarica PDF</button>
+              <button class="btn btn-gold btn-full" onclick="showTab('pay',document.querySelector('.app-tab:nth-child(4)'));initStripe()">attiva abbonamento</button>
+            </div>
+          </div>
+        </div>
+        <div class="preview-wrap">
+          <div class="preview-header">
+            <span class="preview-title">anteprima menu</span>
+          </div>
+          <div class="menu-preview" id="menu-out"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QR -->
+    <div id="tab-qr" style="display:none;">
+      <div class="qr-layout">
+        <div class="qr-card">
+          <div class="section-title" style="margin-bottom:1rem;">il tuo QR code</div>
+          <div style="margin-bottom:1rem;">
+            <label>link pubblico del menu</label>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="qr-url" value="tavola.app/trattoria-mario" readonly style="color:var(--ink3);margin:0;flex:1;"/>
+              <button class="btn btn-sm" onclick="copyLink()">copia</button>
+            </div>
+          </div>
+          <div class="qr-frame">
+            <div class="qr-frame-inner">
+              <div id="qr-canvas"></div>
+            </div>
+            <div class="qr-restaurant-name" id="qr-rest-name">Trattoria da Mario</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button class="btn btn-full" onclick="downloadQR()">↓ scarica PNG</button>
+            <button class="btn btn-dark btn-full" onclick="exportPDF()">↓ scarica PDF</button>
+          </div>
+        </div>
+        <div class="qr-card">
+          <div class="section-title" style="margin-bottom:1.5rem;">come usarlo</div>
+          <div class="qr-instructions">
+            <div class="qr-step"><div class="qr-step-num">1</div><div class="qr-step-text">Scarica il QR code in PNG o incluso nel PDF del menu.</div></div>
+            <div class="qr-step"><div class="qr-step-num">2</div><div class="qr-step-text">Stampalo e posizionalo su ogni tavolo, alla cassa, o sulla vetrina.</div></div>
+            <div class="qr-step"><div class="qr-step-num">3</div><div class="qr-step-text">I clienti lo scansionano con la fotocamera del telefono — nessuna app da scaricare.</div></div>
+            <div class="qr-step"><div class="qr-step-num">4</div><div class="qr-step-text">Ogni modifica al menu si riflette immediatamente. Non devi ristampare nulla.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABBONAMENTO -->
+    <div id="tab-pay" style="display:none;">
+      <div class="pay-layout">
+        <div class="section-title" style="margin-bottom:1.5rem;">scegli il piano</div>
+        <div class="plan-cards">
+          <div class="plan-card selected" id="plan-m" onclick="selectPlan('monthly')">
+            <div class="plan-card-name">mensile</div>
+            <div class="plan-card-price">€19<span>/mese</span></div>
+            <div class="plan-card-save">cancella quando vuoi</div>
+          </div>
+          <div class="plan-card" id="plan-y" onclick="selectPlan('yearly')">
+            <div class="plan-card-name">annuale</div>
+            <div class="plan-card-price">€149<span>/anno</span></div>
+            <div class="plan-card-save">risparmia €79 — 2 mesi gratis</div>
+          </div>
+        </div>
+        <div class="pay-features">
+          <div class="pay-feature"><span class="pay-feature-check">✦</span> menu digitale illimitato</div>
+          <div class="pay-feature"><span class="pay-feature-check">✦</span> QR code personalizzato</div>
+          <div class="pay-feature"><span class="pay-feature-check">✦</span> export PDF professionale</div>
+          <div class="pay-feature"><span class="pay-feature-check">✦</span> dashboard statistiche</div>
+          <div class="pay-feature"><span class="pay-feature-check">✦</span> foto dei piatti</div>
+          <div class="pay-feature"><span class="pay-feature-check">✦</span> assistenza via email</div>
+        </div>
+        <div id="stripe-loading">caricamento form di pagamento...</div>
+        <div id="stripe-form" style="display:none;">
+          <div id="payment-element"></div>
+          <button class="btn btn-gold btn-full btn-lg" id="pay-btn" onclick="submitPayment()" style="margin-top:1rem;">paga ora</button>
+          <div id="pay-error"></div>
+        </div>
+        <div id="pay-success">
+          <h3>Pagamento completato ✦</h3>
+          <p>Benvenuto in Tavola. Il tuo menu è ora attivo.</p>
+        </div>
+        <p style="font-size:11px;color:var(--ink4);text-align:center;margin-top:1rem;">Pagamento sicuro via Stripe · Fattura automatica · IVA inclusa</p>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-// ─── STRIPE CONFIG ───────────────────────────────────────────────
 const STRIPE_PUBLIC_KEY = 'pk_test_51TFYhE1XGTcITVUu6cIs78JNGEmzrdd2U03gttLFzSkXveTqIGGYvZCcusxg4YU3Sn34uS5yoxNCtE4y2QE1cNfn00UvJQREBP';
-// ─────────────────────────────────────────────────────────────────
+const ALLERGENS = ['glutine','lattosio','uova','pesce','crostacei','frutta secca','soia','sedano','senape','sesamo'];
 
 let data = {
   categories: [
     { id:1, name:'Antipasti', dishes:[
-      {id:1,name:'Bruschetta al pomodoro',desc:'Pane tostato, pomodoro, basilico',price:'6.00'},
-      {id:2,name:'Tagliere misto',desc:'Salumi e formaggi locali',price:'12.00'}
+      {id:1,name:'Bruschetta al pomodoro',desc:'Pane tostato, pomodoro fresco, basilico',price:'6.00',allergens:['glutine']},
+      {id:2,name:'Tagliere misto',desc:'Salumi e formaggi locali selezionati',price:'12.00',allergens:['lattosio']}
     ]},
     { id:2, name:'Primi', dishes:[
-      {id:3,name:'Spaghetti al ragù',desc:'Ragù di carne della tradizione',price:'11.00'},
-      {id:4,name:'Risotto ai funghi',desc:'Funghi porcini, parmigiano',price:'13.00'}
+      {id:3,name:'Spaghetti al ragù',desc:'Ragù di carne della tradizione bolognese',price:'11.00',allergens:['glutine','uova']},
+      {id:4,name:'Risotto ai funghi porcini',desc:'Funghi porcini freschi, parmigiano reggiano DOP',price:'13.00',allergens:['lattosio']}
     ]},
     { id:3, name:'Secondi', dishes:[
-      {id:5,name:'Cotoletta alla milanese',desc:'Vitello impanato, limone',price:'16.00'}
+      {id:5,name:'Cotoletta alla milanese',desc:'Vitello impanato, insalata e limone',price:'16.00',allergens:['glutine','uova','lattosio']}
     ]}
   ]
 };
@@ -201,15 +509,24 @@ let nextId = 20;
 let currentPlan = 'monthly';
 let stripe, elements, qrGenerated = false, stripeInit = false;
 
-function showPage(id, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
+// ── NAVIGATION ───────────────────────────────────────────────────
+function enterApp() {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  renderSidebar(); renderMenu(); updateDishCount();
+}
+function showLanding() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('landing').style.display = 'flex';
+}
+function showTab(id, btn) {
+  document.querySelectorAll('[id^="tab-"]').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+id).style.display = 'block';
   if(btn) btn.classList.add('active');
-  if(id === 'qr' && !qrGenerated) generateQR();
 }
 
-// ─── EDITOR ──────────────────────────────────────────────────────
+// ── EDITOR ───────────────────────────────────────────────────────
 function renderSidebar() {
   document.getElementById('cat-list').innerHTML = data.categories.map((cat,ci) => `
     <div class="cat-block">
@@ -220,79 +537,113 @@ function renderSidebar() {
       ${cat.dishes.map((d,di) => `
         <div class="dish-row">
           <div class="dish-col">
-            <input value="${d.name}" placeholder="Nome piatto" oninput="data.categories[${ci}].dishes[${di}].name=this.value;renderMenu()" style="font-size:12px;"/>
-            <input value="${d.desc}" placeholder="Descrizione" oninput="data.categories[${ci}].dishes[${di}].desc=this.value;renderMenu()" style="font-size:11px;"/>
+            <input value="${escHtml(d.name)}" placeholder="Nome piatto" oninput="data.categories[${ci}].dishes[${di}].name=this.value;renderMenu()" style="font-size:12px;margin-bottom:3px;"/>
+            <input value="${escHtml(d.desc)}" placeholder="Descrizione" oninput="data.categories[${ci}].dishes[${di}].desc=this.value;renderMenu()" style="font-size:11px;margin-bottom:3px;"/>
+            <div class="allergen-chips">
+              ${ALLERGENS.map(a => `<span class="allergen-chip ${(d.allergens||[]).includes(a)?'selected':''}" onclick="toggleAllergen(${ci},${di},'${a}')">${a}</span>`).join('')}
+            </div>
           </div>
-          <input class="price-in" value="${d.price}" placeholder="€" oninput="data.categories[${ci}].dishes[${di}].price=this.value;renderMenu()" style="font-size:12px;"/>
-          <button class="btn btn-sm btn-red" onclick="removeDish(${ci},${di})">×</button>
+          <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+            <input class="price-in" value="${escHtml(d.price)}" placeholder="€" oninput="data.categories[${ci}].dishes[${di}].price=this.value;renderMenu()"/>
+            <button class="btn btn-sm btn-red" onclick="removeDish(${ci},${di})">×</button>
+          </div>
         </div>
       `).join('')}
-      <button class="add-dish" onclick="addDish(${ci})">+ piatto</button>
+      <button class="add-dish-btn" onclick="addDish(${ci})">+ piatto</button>
     </div>
   `).join('');
 }
 
 function renderMenu() {
-  const name = document.getElementById('rest-name').value;
-  const tag  = document.getElementById('rest-tagline').value;
+  const name    = document.getElementById('rest-name').value;
+  const tagline = document.getElementById('rest-tagline').value;
+  const address = document.getElementById('rest-address').value;
+  const hOpen   = document.getElementById('h-open').value;
+  const hClose  = document.getElementById('h-close').value;
+  const qrName  = document.getElementById('qr-rest-name');
+  if(qrName) qrName.textContent = name;
   document.getElementById('menu-out').innerHTML = `
-    <div class="menu-head">
-      <div class="menu-name">${name}</div>
-      <div class="menu-sub">${tag}</div>
+    <div class="menu-hero">
+      <div class="menu-hero-name">${name}</div>
+      <div class="menu-hero-line"></div>
+      <div class="menu-hero-sub">${tagline}</div>
     </div>
-    ${data.categories.map(cat=>`
-      <div class="menu-cat">
-        <div class="menu-cat-title">${cat.name}</div>
-        ${cat.dishes.map(d=>`
-          <div class="menu-dish">
-            <div><div class="menu-dish-name">${d.name}</div>${d.desc?`<div class="menu-dish-desc">${d.desc}</div>`:''}</div>
-            <div class="menu-dish-price">€ ${d.price}</div>
-          </div>
-        `).join('')}
-      </div>
-    `).join('')}
-    <div class="menu-footer">aggiornato oggi</div>
+    <div class="menu-body">
+      ${data.categories.map(cat=>`
+        <div class="menu-cat">
+          <div class="menu-cat-title">${cat.name}</div>
+          ${cat.dishes.map(d=>`
+            <div class="menu-dish">
+              <div>
+                <div class="menu-dish-name">${d.name}</div>
+                ${d.desc?`<div class="menu-dish-desc">${d.desc}</div>`:''}
+                ${(d.allergens||[]).length?`<div class="menu-dish-allergens">${(d.allergens||[]).map(a=>`<span class="menu-dish-allergen">${a}</span>`).join('')}</div>`:''}
+              </div>
+              <div class="menu-dish-price">€ ${d.price}</div>
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+    </div>
+    <div class="menu-info">
+      <span>${address}</span>
+      <span>${hOpen} – ${hClose}</span>
+    </div>
   `;
+  updateDishCount();
+}
+
+function toggleAllergen(ci, di, allergen) {
+  if(!data.categories[ci].dishes[di].allergens) data.categories[ci].dishes[di].allergens = [];
+  const arr = data.categories[ci].dishes[di].allergens;
+  const idx = arr.indexOf(allergen);
+  if(idx === -1) arr.push(allergen); else arr.splice(idx, 1);
+  renderSidebar(); renderMenu();
+}
+
+function updateDishCount() {
+  const count = data.categories.reduce((s,c) => s + c.dishes.length, 0);
+  const el = document.getElementById('stat-dishes');
+  if(el) el.textContent = count;
 }
 
 function addCat() { data.categories.push({id:nextId++,name:'Nuova categoria',dishes:[]}); renderSidebar(); renderMenu(); }
 function removeCat(ci) { data.categories.splice(ci,1); renderSidebar(); renderMenu(); }
-function addDish(ci) { data.categories[ci].dishes.push({id:nextId++,name:'',desc:'',price:''}); renderSidebar(); renderMenu(); }
-function removeDish(ci,di) { data.categories[ci].dishes.splice(di,1); renderSidebar(); renderMenu(); }
+function addDish(ci) { data.categories[ci].dishes.push({id:nextId++,name:'',desc:'',price:'',allergens:[]}); renderSidebar(); renderMenu(); }
+function removeDish(ci,di) { data.categories[ci].dishes.splice(ci,1); renderSidebar(); renderMenu(); }
+
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
 function exportPDF() {
   const name = document.getElementById('rest-name').value;
-  const el = document.getElementById('menu-out');
   html2pdf().set({
     margin:1, filename:'menu-'+name.replace(/\s+/g,'-').toLowerCase()+'.pdf',
     image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2},
     jsPDF:{unit:'cm',format:'a4',orientation:'portrait'}
-  }).from(el).save();
+  }).from(document.getElementById('menu-out')).save();
 }
 
-// ─── QR ──────────────────────────────────────────────────────────
-function generateQR() {
+// ── QR ───────────────────────────────────────────────────────────
+function initQR() {
+  if(qrGenerated) return;
   const url = document.getElementById('qr-url').value;
   document.getElementById('qr-canvas').innerHTML = '';
-  new QRCode(document.getElementById('qr-canvas'), { text:url, width:180, height:180, correctLevel:QRCode.CorrectLevel.H });
+  new QRCode(document.getElementById('qr-canvas'), { text:url, width:160, height:160, correctLevel:QRCode.CorrectLevel.H });
   qrGenerated = true;
 }
-
 function copyLink() {
   navigator.clipboard.writeText(document.getElementById('qr-url').value)
     .then(()=>alert('Link copiato!')).catch(()=>alert('Copia manualmente il link'));
 }
-
 function downloadQR() {
   const canvas = document.querySelector('#qr-canvas canvas');
   if(!canvas){alert('QR non ancora generato');return;}
-  const a = document.createElement('a'); a.download='qr-menu.png'; a.href=canvas.toDataURL('image/png'); a.click();
+  const a = document.createElement('a'); a.download='qr-tavola.png'; a.href=canvas.toDataURL('image/png'); a.click();
 }
 
-// ─── STRIPE ──────────────────────────────────────────────────────
+// ── STRIPE ───────────────────────────────────────────────────────
 async function initStripe() {
-  if(stripeInit) return;
-  stripeInit = true;
+  if(stripeInit) return; stripeInit = true;
   try {
     stripe = Stripe(STRIPE_PUBLIC_KEY);
     const res = await fetch('/api/payment', {
@@ -302,15 +653,13 @@ async function initStripe() {
     const { clientSecret, error } = await res.json();
     if(error) throw new Error(error);
     elements = stripe.elements({ clientSecret });
-    const payEl = elements.create('payment');
-    payEl.mount('#payment-element');
+    elements.create('payment').mount('#payment-element');
     document.getElementById('stripe-loading').style.display = 'none';
     document.getElementById('stripe-form').style.display = 'block';
   } catch(e) {
     document.getElementById('stripe-loading').textContent = 'Errore: '+e.message;
   }
 }
-
 function selectPlan(plan) {
   currentPlan = plan;
   document.getElementById('plan-m').classList.toggle('selected', plan==='monthly');
@@ -318,10 +667,9 @@ function selectPlan(plan) {
   stripeInit = false;
   document.getElementById('stripe-form').style.display = 'none';
   document.getElementById('stripe-loading').style.display = 'block';
-  document.getElementById('stripe-loading').textContent = 'caricamento form pagamento...';
+  document.getElementById('stripe-loading').textContent = 'caricamento...';
   initStripe();
 }
-
 async function submitPayment() {
   const btn = document.getElementById('pay-btn');
   btn.textContent = 'elaborazione...'; btn.disabled = true;
@@ -338,10 +686,6 @@ async function submitPayment() {
     document.getElementById('pay-success').style.display = 'block';
   }
 }
-
-// ─── INIT ─────────────────────────────────────────────────────────
-renderSidebar();
-renderMenu();
 </script>
 </body>
 </html>
